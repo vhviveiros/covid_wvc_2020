@@ -14,26 +14,45 @@ cf = Classifier(input_file='characteristics.csv')
 
 # %%Model validation
 #val = cf.validation(batch_size=[16, 20, 24], epochs=[250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 2000], units=[150, 180, 200, 220, 250, 300, 325], cv=10)
-#, 'sgd', 'adadelta'
+# , 'sgd', 'adadelta'
+
+# val = cf.validation(batch_size=[16], epochs=[300], units=[180, 220],
+#                     optimizer=['adadelta'],
+#                     activation=['relu', 'elu', 'selu', 'tanh', 'softsign', 'softplus'],
+#                     activation_output=['sigmoid', 'softmax', 'tanh', 'softplus'],
+#                     loss=['mean_squared_error', 'kl_divergence', 'poisson', 'binary_crossentropy'], cv=10, n_jobs=3)
+
+# val = cf.validation(activation=['relu'], activation_output=['tanh'], batch_size=[16], epochs=[300],
+#                     loss=['mean_squared_error'], optimizer=['sgd'], units=[180], cv=10, layers=[7])
+
+# txt = open("result.txt", "a")
+# txt.write("###Best_params\n")
+# txt.write(str(val.best_params_))
+# txt.write("\n\n###Best_index\n")
+# txt.write(str(val.best_index_))
+# txt.write("\n\n###Best_score\n")
+# txt.write(str(val.best_score_))
+# txt.close()
+
+# %%Model generate table
+# val = cf.validation(activation=['relu'], activation_output=['sigmoid'], batch_size=[16], epochs=[300],
+#                     loss=['binary_crossentropy'], optimizer=['sgd'], units=[220], cv=10, n_jobs=-1, save_path='result_table.csv')
 
 val = cf.validation(batch_size=[16], epochs=[300], units=[180, 220],
-                    optimizer=['adadelta'],
+                    optimizer=['sgd'],
                     activation=['relu', 'elu', 'selu', 'tanh', 'softsign', 'softplus'],
                     activation_output=['sigmoid', 'softmax', 'tanh', 'softplus'],
-                    loss=['mean_squared_error', 'kl_divergence', 'poisson', 'binary_crossentropy'], cv=10, n_jobs=3)
+                    loss=['mean_squared_error', 'kl_divergence', 'poisson', 'binary_crossentropy'], 
+                    cv=10, n_jobs=10, save_path='result_table.csv')                    
 
-txt = open("adadelta.txt", "a")
-txt.write("###Best_params\n")
+txt = open("result.txt", "a")
+txt.write("\n\n###Best_params\n")
 txt.write(str(val.best_params_))
 txt.write("\n\n###Best_index\n")
 txt.write(str(val.best_index_))
 txt.write("\n\n###Best_score\n")
 txt.write(str(val.best_score_))
 txt.close()
-
-# %%Model generate table
-# val = cf.validation(batch_size=[20], epochs=[1000], units=[
-#                     300], cv=10, save_path='result_table.csv')
 
 # %%Model train
 # cf.fit(logs_folder=abs_path("logs\\"),

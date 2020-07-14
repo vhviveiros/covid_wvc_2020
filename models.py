@@ -55,7 +55,7 @@ def unet_model(input_size):
 def classifier_model(optimizer, activation, activationOutput, units, metrics=['accuracy'], loss='binary_crossentropy'):
     classifier = Sequential()
     classifier.add(
-        Dense(units=units, activation=activation, input_shape=(254,)))
+        Dense(units=units, activation=activation, input_shape=(267,)))
     classifier.add(Dropout(rate=0.2))
     classifier.add(Dense(units=units, activation=activation))
     classifier.add(Dropout(rate=0.2))

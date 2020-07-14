@@ -27,8 +27,8 @@ class Classifier:
     def read_file(self, file, test_size=0.2):
         # Read csv
         ctcs = pd.read_csv(file)
-        entries = ctcs.iloc[:, 1:255].values
-        results = ctcs.iloc[:, 255].values
+        entries = ctcs.iloc[:, 1:268].values
+        results = ctcs.iloc[:, 268].values
 
         # Split into test and training
         X_train, X_test, self.y_train, self.y_test = train_test_split(
@@ -43,7 +43,7 @@ class Classifier:
         def key_filter(key):
             return list(filter(lambda x: x.startswith('split') and x.__contains__(key), grid_cv.cv_results_))
 
-        return {metric: [grid_cv.cv_results_[m][0] for m in key_filter(metric)]
+        return {metric: [grid_cv.cv_results_[m][grid_cv.best_index_] for m in key_filter(metric)]
                 for metric in self.metrics}
 
     @staticmethod
