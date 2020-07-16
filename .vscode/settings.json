@@ -1,3 +1,6 @@
 {
-    "python.pythonPath": "/home/vhviveiros/APPS/anaconda3/envs/tf-gpu/bin/python"
+    "python.pythonPath": "C:\\Users\\vhviv\\anaconda3\\envs\\tf-gpu\\python.exe",
+    "cSpell.ignoreWords": [
+        "relu"
+    ]
 }

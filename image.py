@@ -43,7 +43,7 @@ class Image:
 
     def hist(self):
         result = np.squeeze(cv2.calcHist(
-            [self.data], [0], None, [254], [1, 255]))
+            [self.data], [0], None, [255], [1, 256]))
         result = np.asarray(result, dtype='int32')
         return result
 

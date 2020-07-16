@@ -5,6 +5,7 @@ config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth = True
 sess = tf.compat.v1.Session(config=config)
 
+
 def unet_model(input_size):
     inputs = Input(input_size)
 
@@ -55,7 +56,7 @@ def unet_model(input_size):
 def classifier_model(optimizer, activation, activationOutput, units, metrics=['accuracy'], loss='binary_crossentropy'):
     classifier = Sequential()
     classifier.add(
-        Dense(units=units, activation=activation, input_shape=(267,)))
+        Dense(units=units, activation=activation, input_shape=(268,)))
     classifier.add(Dropout(rate=0.2))
     classifier.add(Dense(units=units, activation=activation))
     classifier.add(Dropout(rate=0.2))

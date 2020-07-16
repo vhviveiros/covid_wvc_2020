@@ -27,8 +27,8 @@ class Classifier:
     def read_file(self, file, test_size=0.2):
         # Read csv
         ctcs = pd.read_csv(file)
-        entries = ctcs.iloc[:, 1:268].values
-        results = ctcs.iloc[:, 268].values
+        entries = ctcs.iloc[:, 1:269].values
+        results = ctcs.iloc[:, 269].values
 
         # Split into test and training
         X_train, X_test, self.y_train, self.y_test = train_test_split(
@@ -58,7 +58,7 @@ class Classifier:
             y_true, y_pred, labels=[0, 1]).ravel()
         return (tp / (tp + fn))
 
-    def validation(self, n_jobs=-2, cv=10, batch_size=-1, epochs=-1, units=-1, optimizer = ['adam'], activation=['relu'], activation_output=['sigmoid'], loss=['binary_crossentropy'], save_path=None):
+    def validation(self, n_jobs=-2, cv=10, batch_size=-1, epochs=-1, units=-1, optimizer=['adam'], activation=['relu'], activation_output=['sigmoid'], loss=['binary_crossentropy'], save_path=None):
         classifier = KerasClassifier(build_fn=classifier_model)
 
         parameters = {'batch_size': batch_size,
@@ -95,15 +95,16 @@ class Classifier:
         result_set = self.__format_validation(grid_search)
         pd.DataFrame(result_set).to_csv(save_path)
 
-    def fit(self, logs_folder, export_dir=None, batch_size=16, epochs=250, units=180, metrics=['accuracy']):
+    def fit(self, logs_folder, export_dir=None, batch_size=16, epochs=300, units=180, optimizer='sgd', activation='relu', activation_output='sigmoid', loss='binary_crossentropy'):
         date_time = datetime.datetime.now().strftime("%Y_%m_%d-%H_%M_%S")
+        check_folder(logs_folder, False)
         log_dir = logs_folder + date_time
         tensorboard_callback = tf.keras.callbacks.TensorBoard(
             log_dir=log_dir, histogram_freq=1)
-        self.model = classifier_model('adam', 'relu', 'sigmoid', units,
-                                      ['accuracy', Precision(), AUC(), Recall()])
-        history = self.model.fit(self.X_train, self.y_train, batch_size=batch_size, epochs=epochs, verbose=1, use_multiprocessing=True,
-                                 validation_data=(self.X_test, self.y_test), callbacks=[TrainingPlot(), tensorboard_callback])
+        self.model = classifier_model(optimizer, activation, activation_output, units,
+                                      ['accuracy', Precision(), AUC(), Recall()], loss)
+        history = self.model.fit(self.X_train, self.y_train, batch_size=batch_size, epochs=epochs, verbose=1, workers=12, use_multiprocessing=True,
+                                 validation_data=(self.X_test, self.y_test), callbacks=[TrainingPlot(epochs), tensorboard_callback])
         if export_dir is not None:
             self.__export_model(export_dir, date_time)
 
