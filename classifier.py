@@ -21,7 +21,7 @@ class Classifier:
     def __init__(self, input_file=None, import_model=None):
         if input_file is not None:
             self.read_file(input_file)
-        else:
+        if import_model is not None:
             self.__import_model(import_model)
 
     def read_file(self, file, test_size=0.2):
@@ -109,18 +109,101 @@ class Classifier:
             self.__export_model(export_dir, date_time)
 
     def __export_model(self, save_dir, date_time):
-        check_folder(save_dir)
+        check_folder(save_dir, False)
         self.model.save(save_dir + 'save_' + date_time + '.h5')
 
-    def __import_model(self, model_dir):
-        self.model = classifier_model('adam', 'relu', 'sigmoid')
+    def __import_model(self, model_dir, optimizer='sgd', activation='relu', activation_output='sigmoid', loss='binary_crossentropy', units=180):
+        self.model = classifier_model(optimizer, activation, activation_output, units,
+                                      ['accuracy', Precision(), AUC(), Recall()], loss)
         self.model.load_weights(model_dir)
         return self.model
 
-    def confusion_matrix(self):
+    def __confusion_matrix(self):
         pred = self.model.predict_classes(self.X_test)
         matrix = confusion_matrix(pred, self.y_test)
-        print(matrix)
+        return(matrix)
+
+    def plot_confusion_matrix(self,
+                              title='Confusion matrix',
+                              cmap=None,
+                              normalize=True,
+                              save_dir=None):
+        """
+        given a sklearn confusion matrix (cm), make a nice plot
+
+        Arguments
+        ---------
+        cm:           confusion matrix from sklearn.metrics.confusion_matrix
+
+        target_names: given classification classes such as [0, 1, 2]
+                    the class names, for example: ['high', 'medium', 'low']
+
+        title:        the text to display at the top of the matrix
+
+        cmap:         the gradient of the values displayed from matplotlib.pyplot.cm
+                    see http://matplotlib.org/examples/color/colormaps_reference.html
+                    plt.get_cmap('jet') or plt.cm.Blues
+
+        normalize:    If False, plot the raw numbers
+                    If True, plot the proportions
+
+        Usage
+        -----
+        plot_confusion_matrix(cm           = cm,                  # confusion matrix created by
+                                                                # sklearn.metrics.confusion_matrix
+                            normalize    = True,                # show proportions
+                            target_names = y_labels_vals,       # list of names of the classes
+                            title        = best_estimator_name) # title of graph
+
+        Citiation
+        ---------
+        http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
+
+        """
+        import matplotlib.pyplot as plt
+        import numpy as np
+        import itertools
+
+        cm = self.__confusion_matrix()
+        target_names = ['Covid-19', 'Normal']
+
+        accuracy = np.trace(cm) / float(np.sum(cm))
+        misclass = 1 - accuracy
+
+        if cmap is None:
+            cmap = plt.get_cmap('Blues')
+
+        plt.figure(figsize=(8, 6))
+        plt.imshow(cm, interpolation='nearest', cmap=cmap)
+        plt.title(title)
+        plt.colorbar()
+
+        if target_names is not None:
+            tick_marks = np.arange(len(target_names))
+            plt.xticks(tick_marks, target_names, rotation=45)
+            plt.yticks(tick_marks, target_names)
+
+        if normalize:
+            cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+        thresh = cm.max() / 1.5 if normalize else cm.max() / 2
+        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+            if normalize:
+                plt.text(j, i, "{:0.4f}".format(cm[i, j]),
+                         horizontalalignment="center",
+                         color="white" if cm[i, j] > thresh else "black")
+            else:
+                plt.text(j, i, "{:,}".format(cm[i, j]),
+                         horizontalalignment="center",
+                         color="white" if cm[i, j] > thresh else "black")
+
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(
+            accuracy, misclass))
+        if save_dir is not None:
+            plt.savefig(save_dir)
+        plt.show()
 
     def predict(self, x):
         pred = self.model.predict_classes(x)

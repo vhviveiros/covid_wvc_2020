@@ -55,11 +55,13 @@ cf = Classifier(input_file='characteristics.csv')
 # txt.close()
 
 # %%Model train
-cf.fit(logs_folder=abs_path("logs\\"),
-       export_dir=abs_path('teste/'), epochs=5000)
+# cf.fit(logs_folder=abs_path("logs\\"),
+#       export_dir=abs_path('teste/'), epochs=5000)
 
 # %%Read model
-#cf = Classifier(import_model=abs_path('teste/save_2020_06_24-17_35_07.h5'))
+cf = Classifier(import_model=abs_path('teste/save_2020_07_16-20_03_18.h5'),
+                input_file='characteristics.csv')
+cf.plot_confusion_matrix(save_dir='confusion_matrix.png')
 
 # %%Results
 # Comando para executar Tensorboard
